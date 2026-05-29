@@ -1,0 +1,25 @@
+[project]
+name = "todo-cli"
+version = "0.1.0"
+description = "A simple, friendly command-line to-do manager."
+readme = "README.md"
+authors = [
+    { name = "mahiprime2001", email = "tarunmatta5669@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+]
+
+[project.scripts]
+todo = "todo_cli.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]

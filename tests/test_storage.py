@@ -7,6 +7,7 @@ import json
 import pytest
 
 from todo_cli import storage
+from todo_cli.models import TaskList
 
 
 @pytest.fixture(autouse=True)
@@ -18,29 +19,45 @@ def temp_data(tmp_path, monkeypatch):
 
 
 def test_load_empty_when_missing():
-    assert storage.load_tasks() == []
+    assert storage.load().tasks == []
 
 
 def test_save_and_load_roundtrip(temp_data):
-    tasks = [{"id": 1, "text": "write tests", "done": False, "created": "x"}]
-    storage.save_tasks(tasks)
-    assert temp_data.exists()
-    assert storage.load_tasks() == tasks
+    tl = TaskList()
+    tl.add("write tests", tags=["dev"])
+    storage.save(tl)
+
+    on_disk = json.loads(temp_data.read_text())
+    assert on_disk["version"] == storage.SCHEMA_VERSION
+    assert len(on_disk["tasks"]) == 1
+
+    reloaded = storage.load()
+    assert reloaded.tasks[0].text == "write tests"
+    assert reloaded.tasks[0].tags == ["dev"]
 
 
-def test_next_id_increments():
-    assert storage.next_id([]) == 1
-    assert storage.next_id([{"id": 3}, {"id": 7}]) == 8
+def test_reads_legacy_v1_array(temp_data):
+    """A bare JSON array (the old format) should still load."""
+    temp_data.parent.mkdir(parents=True, exist_ok=True)
+    legacy = [{"id": 1, "text": "legacy task", "done": False, "created": "2020-01-01T00:00:00+00:00"}]
+    temp_data.write_text(json.dumps(legacy), encoding="utf-8")
+
+    tl = storage.load()
+    assert len(tl.tasks) == 1
+    assert tl.tasks[0].text == "legacy task"
+    assert tl.tasks[0].priority.value == "medium"  # default filled in
 
 
 def test_corrupt_file_returns_empty(temp_data):
     temp_data.parent.mkdir(parents=True, exist_ok=True)
     temp_data.write_text("not valid json {", encoding="utf-8")
-    assert storage.load_tasks() == []
+    assert storage.load().tasks == []
 
 
 def test_save_creates_parent_dir(tmp_path, monkeypatch):
     nested = tmp_path / "a" / "b" / "tasks.json"
     monkeypatch.setenv("TODO_CLI_DATA", str(nested))
-    storage.save_tasks([{"id": 1}])
-    assert json.loads(nested.read_text()) == [{"id": 1}]
+    tl = TaskList()
+    tl.add("nested")
+    storage.save(tl)
+    assert nested.exists()

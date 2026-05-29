@@ -335,5 +335,18 @@ def export(
         print(rendered)
 
 
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", help="Address to bind."),
+    port: int = typer.Option(8000, "--port", help="Port to listen on."),
+) -> None:
+    """Launch the web UI (browse your tasks at http://HOST:PORT)."""
+    from .web.app import run
+
+    console.print(f"[green]Serving the to-do web UI at[/green] http://{host}:{port}")
+    console.print("[dim]Press Ctrl+C to stop.[/dim]")
+    run(host=host, port=port)
+
+
 if __name__ == "__main__":
     app()

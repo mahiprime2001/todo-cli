@@ -1,6 +1,6 @@
 # todo-cli
 
-A friendly, full-featured command-line to-do manager — built with [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/), managed with [uv](https://docs.astral.sh/uv/).
+A friendly, full-featured to-do manager with **two interfaces** — a command-line tool ([Typer](https://typer.tiangolo.com/) + [Rich](https://rich.readthedocs.io/)) and a **web UI** ([FastAPI](https://fastapi.tiangolo.com/) + a vanilla HTML/CSS/JS frontend). Both share the exact same model layer. Managed with [uv](https://docs.astral.sh/uv/).
 
 This is project #1 in a series of Python projects, progressing from basic to advanced.
 
@@ -74,24 +74,57 @@ todo clear --force              # remove everything (no prompt)
 Override the storage location with the `TODO_CLI_DATA` environment variable
 (handy for testing or keeping separate lists).
 
+## Web UI
+
+The same tasks are available through a browser. Launch the server with either:
+
+```bash
+uv run todo serve            # via the CLI (supports --host / --port)
+uv run todo-web              # standalone entry point
+```
+
+Then open <http://127.0.0.1:8000>. The page lets you add, complete, edit-by-
+toggle, filter, search, sort, and delete tasks, with live stats. It talks to a
+small REST API:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET`  | `/api/tasks` | list (query: `all`, `priority`, `tag`, `search`, `overdue`, `sort`) |
+| `POST` | `/api/tasks` | create |
+| `GET`  | `/api/tasks/{id}` | fetch one |
+| `PATCH`| `/api/tasks/{id}` | edit / complete / reopen |
+| `DELETE`| `/api/tasks/{id}` | delete |
+| `GET`  | `/api/tags` | tag counts |
+| `GET`  | `/api/stats` | summary |
+
+Interactive API docs are auto-generated at <http://127.0.0.1:8000/docs>.
+
 ## Development
 
 ```bash
 uv sync                  # install runtime + dev dependencies
-uv run pytest            # run the test suite (33 tests)
+uv run pytest            # run the test suite (44 tests)
 ```
 
 ## Project layout
 
 ```
 todo-cli/
-├── pyproject.toml           # project metadata, deps, entry point
+├── pyproject.toml           # project metadata, deps, entry points
+├── main.py                  # run the CLI without installing
 ├── src/todo_cli/
-│   ├── cli.py               # Typer commands (presentation only)
+│   ├── cli.py               # Typer commands + `serve` (presentation only)
 │   ├── models.py            # Task + TaskList: all business logic
-│   └── storage.py           # JSON persistence (versioned, backward-compatible)
-└── tests/                   # pytest suite (models, storage, CLI)
+│   ├── storage.py           # JSON persistence (versioned, backward-compatible)
+│   └── web/
+│       ├── app.py           # FastAPI app + REST endpoints over TaskList
+│       └── static/          # index.html, style.css, app.js (frontend)
+└── tests/                   # pytest suite (models, storage, CLI, web API)
 ```
+
+The CLI, the web API, and the frontend are all thin layers over the same
+`models.py` / `storage.py` core — a deliberate demonstration of clean
+separation between business logic and interface.
 
 ## Data format
 

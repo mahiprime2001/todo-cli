@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>todo-cli · web</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>✓ todo</h1>
+      <p class="subtitle">A friendly to-do manager</p>
+    </header>
+
+    <!-- Add task -->
+    <form id="add-form" class="card add-form">
+      <input type="text" id="text" placeholder="What needs doing?" required autocomplete="off" />
+      <div class="row">
+        <select id="priority" title="Priority">
+          <option value="low">low</option>
+          <option value="medium" selected>medium</option>
+          <option value="high">high</option>
+        </select>
+        <input type="text" id="due" placeholder="Due (e.g. tomorrow, +3d, 2030-06-01)" />
+        <input type="text" id="tags" placeholder="Tags (comma separated)" />
+        <button type="submit">Add</button>
+      </div>
+    </form>
+
+    <!-- Stats -->
+    <section id="stats" class="stats"></section>
+
+    <!-- Controls -->
+    <section class="card controls">
+      <input type="search" id="search" placeholder="Search…" />
+      <select id="sort" title="Sort by">
+        <option value="id">Sort: id</option>
+        <option value="priority">Sort: priority</option>
+        <option value="due">Sort: due</option>
+        <option value="created">Sort: created</option>
+      </select>
+      <label class="check"><input type="checkbox" id="show-all" /> Show completed</label>
+    </section>
+
+    <!-- Task list -->
+    <section id="task-list" class="task-list"></section>
+    <p id="empty" class="empty" hidden>No matching tasks. 🎉</p>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

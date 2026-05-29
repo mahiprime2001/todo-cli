@@ -1,7 +1,7 @@
 [project]
 name = "todo-cli"
-version = "0.2.0"
-description = "A friendly, full-featured command-line to-do manager."
+version = "0.3.0"
+description = "A friendly, full-featured to-do manager with a CLI and a web UI."
 readme = "README.md"
 authors = [
     { name = "mahiprime2001", email = "tarunmatta5669@gmail.com" }
@@ -10,10 +10,13 @@ requires-python = ">=3.11"
 dependencies = [
     "typer>=0.12.0",
     "rich>=13.7.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
 ]
 
 [project.scripts]
 todo = "todo_cli.cli:app"
+todo-web = "todo_cli.web.app:run"
 
 [build-system]
 requires = ["hatchling"]
@@ -22,4 +25,5 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
+    "httpx>=0.27.0",
 ]
